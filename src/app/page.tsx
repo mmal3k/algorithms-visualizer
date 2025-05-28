@@ -19,13 +19,13 @@ export default function Home() {
             <TabsList className="grid w-full grid-cols-2 p-1 bg-white/20 border-white/30">
               <TabsTrigger
                 value="sorting"
-                className="text-sm px-1 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600"
+                className="text-sm px-1 h-8 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600"
               >
                 Sorting
               </TabsTrigger>
               <TabsTrigger
                 value="pathfinding"
-                className="text-sm px-1 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600"
+                className="text-sm px-1 h-8 text-white data-[state=active]:bg-white data-[state=active]:text-blue-600"
               >
                 Pathfinding
               </TabsTrigger>

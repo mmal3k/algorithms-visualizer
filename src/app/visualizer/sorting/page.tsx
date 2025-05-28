@@ -1,5 +1,6 @@
 "use client";
 
+import { mergeSort } from "@/algorithms/sorting";
 import {
   Select,
   SelectContent,
@@ -16,10 +17,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { SortStep } from "@/types/sorting";
 import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+
 export default function SortingVisualizer() {
   const [array, setArray] = useState<number[]>([]);
   const [speed, setSpeed] = useState<number>(10);
@@ -29,6 +32,13 @@ export default function SortingVisualizer() {
   const [totalSteps, setTotalSteps] = useState(0);
   const [sortingAlgorithm, setSortingAlgorithm] = useState<string>("bubble");
   const [arraySize, setArraySize] = useState(20);
+  const [comparingIndices, setComparingIndices] = useState<number[]>([]);
+  const [swappingIndices, setSwappingIndices] = useState<number[]>([]);
+  const [sortedIndices, setSortedIndices] = useState<number[]>([]);
+
+  const sortingStepsRef = useRef<SortStep[]>([]);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isPausedRef = useRef(isPaused);
 
   const generateRandomArray = () => {
     const newArray = [];
@@ -43,12 +53,72 @@ export default function SortingVisualizer() {
     generateRandomArray();
   }, []);
 
-  const togglePause = () => {
-    setIsPaused(!isPaused);
-  };
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   const startSorting = () => {
+    resetSortingState();
     setIsSorting(true);
+    let sortingSteps: SortStep[] = [];
+
+    switch (sortingAlgorithm) {
+      case "merge":
+        sortingSteps = mergeSort([...array]);
+        break;
+      default:
+        sortingSteps = mergeSort([...array]);
+    }
+
+    sortingStepsRef.current = sortingSteps;
+    setTotalSteps(sortingSteps.length);
+
+    animateSort(0, sortingSteps);
+  };
+
+  const animateSort = (stepIndex: number, steps: SortStep[]) => {
+    if (stepIndex >= steps.length) {
+      setIsSorting(false);
+      return;
+    }
+    setCurrentStep(stepIndex);
+
+    const step = steps[stepIndex];
+    setArray(step.array);
+
+    if (step.type === "compare") {
+      setComparingIndices(step.indices);
+      setSwappingIndices([]);
+    } else if (step.type === "swap") {
+      setComparingIndices([]);
+      setSwappingIndices(step.indices);
+    } else if (step.type === "sorted") {
+      setComparingIndices([]);
+      setSwappingIndices([]);
+      setSortedIndices((prev) => [...prev, ...step.indices]);
+    }
+
+    const delay = Math.max(5, 300 - speed * 3);
+    if (!isPausedRef.current) {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      animationTimeoutRef.current = setTimeout(() => {
+        animateSort(stepIndex + 1, steps);
+      }, delay);
+    }
+  };
+
+  const togglePause =  async () => {
+    if (isPaused) {
+      await setIsPaused(false);
+      animateSort(currentStep + 1, sortingStepsRef.current);
+    } else {
+      setIsPaused(true);
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    }
   };
 
   const stepForward = () => {};
@@ -58,7 +128,27 @@ export default function SortingVisualizer() {
     setIsSorting(false);
     setCurrentStep(0);
     setTotalSteps(0);
+    setComparingIndices([]);
+    setSwappingIndices([]);
+    setSortedIndices([]);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    sortingStepsRef.current = [];
   };
+
+  const getBarColor = (index: number) => {
+    if (sortedIndices.includes(index)) {
+      return "bg-gradient-to-t from-green-500 to-green-400 shadow-lg";
+    } else if (swappingIndices.includes(index)) {
+      return "bg-gradient-to-t from-red-500 to-red-400 shadow-lg";
+    } else if (comparingIndices.includes(index)) {
+      return "bg-gradient-to-t from-orange-500 to-orange-400 shadow-lg";
+    } else {
+      return "bg-primary";
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-8 ">
       <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-10 px-10">
@@ -207,11 +297,15 @@ export default function SortingVisualizer() {
         {array.map((value, index) => (
           <div
             key={index}
-            className={`flex-1 bg-primary rounded-t-sm transition-all duration-300 ease-in-out`}
+            className={`${getBarColor(
+              index
+            )} flex-1 rounded-t-sm transition-all duration-300 ease-in-out relative`}
             style={{
               height: `${value}%`,
             }}
-          />
+          >
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-600">{value}</div>
+          </div>
         ))}
       </div>
     </div>

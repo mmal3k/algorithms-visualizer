@@ -1,6 +1,6 @@
 "use client";
 
-import { mergeSort } from "@/algorithms/sorting";
+import { bubbleSort, heapSort, mergeSort } from "@/algorithms/sorting";
 import {
   Select,
   SelectContent,
@@ -63,11 +63,17 @@ export default function SortingVisualizer() {
     let sortingSteps: SortStep[] = [];
 
     switch (sortingAlgorithm) {
+      case "bubble":
+        sortingSteps = bubbleSort([...array]);
+        break;
       case "merge":
         sortingSteps = mergeSort([...array]);
         break;
+      case "heap":
+        sortingSteps = heapSort([...array]);
+        break;
       default:
-        sortingSteps = mergeSort([...array]);
+        sortingSteps = bubbleSort([...array]);
     }
 
     sortingStepsRef.current = sortingSteps;
@@ -109,7 +115,7 @@ export default function SortingVisualizer() {
     }
   };
 
-  const togglePause =  async () => {
+  const togglePause = async () => {
     if (isPaused) {
       await setIsPaused(false);
       animateSort(currentStep + 1, sortingStepsRef.current);
@@ -304,7 +310,9 @@ export default function SortingVisualizer() {
               height: `${value}%`,
             }}
           >
-            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-600">{value}</div>
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-600">
+              {value}
+            </div>
           </div>
         ))}
       </div>

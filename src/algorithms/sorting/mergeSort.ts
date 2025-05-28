@@ -5,11 +5,6 @@ export const mergeSort = (arr: number[]): SortStep[] => {
   const arrCopy = [...arr];
 
   const merge = (start: number, mid: number, end: number) => {
-    steps.push({
-      type: "compare",
-      indices: [start, end],
-      array: [...arrCopy],
-    });
 
     const leftSize = mid - start + 1;
     const rightSize = end - mid;

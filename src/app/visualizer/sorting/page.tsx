@@ -1,6 +1,6 @@
 "use client";
 
-import { bubbleSort, heapSort, mergeSort } from "@/algorithms/sorting";
+import { bubbleSort, heapSort, mergeSort , quickSort } from "@/algorithms/sorting";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,7 @@ import { Slider } from "@/components/ui/slider";
 import { SortStep } from "@/types/sorting";
 import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
 
 import { Button } from "@/components/ui/button";
 
@@ -71,6 +72,9 @@ export default function SortingVisualizer() {
         break;
       case "heap":
         sortingSteps = heapSort([...array]);
+        break;
+      case "quick":
+        sortingSteps = quickSort([...array]);
         break;
       default:
         sortingSteps = bubbleSort([...array]);

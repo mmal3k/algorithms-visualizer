@@ -171,7 +171,7 @@ export default function SortingVisualizer() {
           onClick={() => generateRandomArray()}
           disabled={isSorting && !isPaused}
         >
-          <RotateCcw className="w-4 h-4 mr-2"/>
+          <RotateCcw className="w-4 h-4 mr-2" />
           Generate New Array
         </Button>
         <Select
@@ -183,16 +183,28 @@ export default function SortingVisualizer() {
             <SelectValue placeholder="Select algorithm" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="cursor-pointer" value="bubble">
+            <SelectItem
+              className="cursor-pointer hover:bg-primary-light"
+              value="bubble"
+            >
               Bubble Sort
             </SelectItem>
-            <SelectItem className="cursor-pointer" value="merge">
+            <SelectItem
+              className="cursor-pointer hover:bg-primary-light"
+              value="merge"
+            >
               Merge Sort
             </SelectItem>
-            <SelectItem className="cursor-pointer" value="quick">
+            <SelectItem
+              className="cursor-pointer hover:bg-primary-light"
+              value="quick"
+            >
               Quick Sort
             </SelectItem>
-            <SelectItem className="cursor-pointer" value="heap">
+            <SelectItem
+              className="cursor-pointer hover:bg-primary-light"
+              value="heap"
+            >
               Heap Sort
             </SelectItem>
           </SelectContent>
@@ -222,6 +234,7 @@ export default function SortingVisualizer() {
                 <StepForward className="h-4 w-4" />
               </Button>
             )}
+            
           </>
         ) : (
           <Button

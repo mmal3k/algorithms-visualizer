@@ -5,7 +5,7 @@ import PathfindingVisualizer from "./visualizer/pathfinding/page";
 import SortingVisualizer from "./visualizer/sorting/page";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("sorting");
+  const [activeTab, setActiveTab] = useState("pathfinding");
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-primary px-10">

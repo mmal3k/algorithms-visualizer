@@ -1,6 +1,11 @@
 "use client";
 
-import { bubbleSort, heapSort, mergeSort , quickSort } from "@/algorithms/sorting";
+import {
+  bubbleSort,
+  heapSort,
+  mergeSort,
+  quickSort,
+} from "@/algorithms/sorting";
 import {
   Select,
   SelectContent,
@@ -20,7 +25,6 @@ import { Slider } from "@/components/ui/slider";
 import { SortStep } from "@/types/sorting";
 import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-
 
 import { Button } from "@/components/ui/button";
 
@@ -149,25 +153,25 @@ export default function SortingVisualizer() {
 
   const getBarColor = (index: number) => {
     if (sortedIndices.includes(index)) {
-      return "bg-gradient-to-t from-green-500 to-green-400 shadow-lg";
+      return "bg-gradient-to-t from-sort-sorted to-sort-sorted/80 shadow-lg";
     } else if (swappingIndices.includes(index)) {
-      return "bg-gradient-to-t from-red-500 to-red-400 shadow-lg";
+      return "bg-gradient-to-t from-sort-swapping to-sort-swapping/80 shadow-lg";
     } else if (comparingIndices.includes(index)) {
-      return "bg-gradient-to-t from-orange-500 to-orange-400 shadow-lg";
+      return "bg-gradient-to-t from-sort-comparing to-sort-comparing/80 shadow-lg";
     } else {
-      return "bg-primary";
+      return "bg-sort-default";
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-8 ">
-      <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-10 px-10">
+      <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-10 px-10 bg-ui-background/50">
         <Button
-          className="flex items-center h-10 bg-blue-600 text-white px-4 rounded-md"
+          className="flex items-center h-10 bg-button-primary-bg text-button-primary-text px-4 rounded-md hover:bg-button-primary-hover"
           onClick={() => generateRandomArray()}
           disabled={isSorting && !isPaused}
         >
-          <RotateCcw className="w-4 h-4 mr-2" />
+          <RotateCcw className="w-4 h-4 mr-2"/>
           Generate New Array
         </Button>
         <Select
@@ -175,7 +179,7 @@ export default function SortingVisualizer() {
           onValueChange={setSortingAlgorithm}
           disabled={isSorting && !isPaused}
         >
-          <SelectTrigger className="h-10 w-40 bg-white border-blue-400">
+          <SelectTrigger className="h-10 w-40 bg-ui-background border-ui-border">
             <SelectValue placeholder="Select algorithm" />
           </SelectTrigger>
           <SelectContent>
@@ -200,7 +204,7 @@ export default function SortingVisualizer() {
               variant="outline"
               size="sm"
               onClick={togglePause}
-              className="bg-blue-50 h-10 border-blue-200 text-blue-700 hover:bg-blue-100"
+              className="bg-button-secondary-bg text-button-secondary-text hover:bg-button-secondary-hover h-10 border-ui-border"
             >
               {isPaused ? (
                 <Play className="h-4 w-4" />
@@ -213,7 +217,7 @@ export default function SortingVisualizer() {
                 variant="outline"
                 size="sm"
                 onClick={stepForward}
-                className="bg-green-50 h-10 border-green-200 text-green-700 hover:bg-green-100"
+                className="bg-button-success-bg text-button-success-text hover:bg-button-success-hover h-10 border-ui-border"
               >
                 <StepForward className="h-4 w-4" />
               </Button>
@@ -222,8 +226,7 @@ export default function SortingVisualizer() {
         ) : (
           <Button
             onClick={startSorting}
-            size="sm"
-            className="bg-primary h-10 text-white text-sm"
+            className="bg-button-primary-bg text-button-primary-text hover:bg-button-primary-hover h-10"
           >
             <Play className="h-4 w-4 mr-2" />
             Start
@@ -235,19 +238,19 @@ export default function SortingVisualizer() {
             <Button
               variant="outline"
               size="sm"
-              className=" border-blue-200 text-blue-700 hover:bg-blue-100 ml-auto h-10"
+              className="border-ui-border text-ui-foreground hover:bg-ui-accent ml-auto h-10"
             >
               <Settings className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent className="bg-gradient-to-b from-white to-blue-50">
+          <SheetContent className="bg-gradient-to-b from-ui-background to-ui-muted">
             <SheetHeader>
-              <SheetTitle className="text-blue-800">Settings</SheetTitle>
+              <SheetTitle className="text-ui-foreground">Settings</SheetTitle>
               <SheetDescription>Customize the visualization</SheetDescription>
             </SheetHeader>
             <div className="space-y-6 mt-6">
               <div>
-                <label className="text-sm font-medium mb-2 block text-blue-700">
+                <label className="text-sm font-medium mb-2 block text-ui-foreground">
                   Array Size
                 </label>
                 <Slider
@@ -261,13 +264,13 @@ export default function SortingVisualizer() {
                   }}
                   disabled={isSorting && !isPaused}
                 />
-                <div className="text-center text-sm text-blue-600 mt-1">
+                <div className="text-center text-sm text-primary mt-1">
                   {array.length} elements
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block text-blue-700">
+                <label className="text-sm font-medium mb-2 block text-ui-foreground">
                   Animation Speed
                 </label>
                 <Slider
@@ -277,20 +280,20 @@ export default function SortingVisualizer() {
                   step={1}
                   onValueChange={(value) => setSpeed(value[0])}
                 />
-                <div className="text-center text-sm text-blue-600 mt-1">
+                <div className="text-center text-sm text-primary mt-1">
                   {speed}% speed
                 </div>
               </div>
 
               {isSorting && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block text-blue-700">
+                  <label className="text-sm font-medium mb-2 block text-ui-foreground">
                     Progress
                   </label>
-                  <div className="text-sm text-blue-600">
+                  <div className="text-sm text-primary">
                     Step {currentStep} of {totalSteps}
                   </div>
-                  <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
+                  <div className="w-full bg-ui-muted rounded-full h-2 mt-2">
                     <div
                       className="bg-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${(currentStep / totalSteps) * 100}%` }}
@@ -314,7 +317,7 @@ export default function SortingVisualizer() {
               height: `${value}%`,
             }}
           >
-            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-600">
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-ui-foreground">
               {value}
             </div>
           </div>

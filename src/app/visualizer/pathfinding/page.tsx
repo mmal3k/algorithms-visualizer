@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 
 import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -42,7 +44,7 @@ export default function PathfindingVisualizer() {
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [totalSteps, setTotalSteps] = useState<number>(0);
-  const [showWeights, setShowWeights] = useState(false);
+  const [showWeights, setShowWeights] = useState(true);
   const [weights, setWeights] = useState<number[][]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
@@ -56,6 +58,10 @@ export default function PathfindingVisualizer() {
     const newGrid: string[][] = Array(gridSize[0])
       .fill(0)
       .map(() => Array(gridSize[1]).fill(""));
+
+    const newWeights: number[][] = Array(gridSize[0])
+      .fill(0)
+      .map(() => Array(gridSize[1]).fill(1));
 
     const newStartNode: [number, number] = [2, 2];
 
@@ -79,6 +85,17 @@ export default function PathfindingVisualizer() {
       }
     }
 
+    // add weights to the grid
+
+    for (let i = 0; i < newGrid.length; i++) {
+      for (let j = 0; j < newGrid[i].length; j++) {
+        if (newGrid[i][j] == "") {
+          newWeights[i][j] = Math.floor(Math.random() * 9 + 2);
+        }
+      }
+    }
+
+    setWeights(newWeights);
     setGrid(newGrid);
     resetVisualizationState();
   };
@@ -99,17 +116,18 @@ export default function PathfindingVisualizer() {
 
   const clearWalls = () => {
     const newGrid = [...grid].map((row) => [...row]);
-
+    const newWeights = [...weights].map((row) => [...row]);
     const rows = newGrid.length;
     const cols = newGrid[0].length;
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         if (newGrid[i][j] === "wall") {
           newGrid[i][j] = "";
+          newWeights[i][j] = Math.floor(Math.random() * 9 + 2);
         }
       }
     }
-
+    setWeights(newWeights);
     setGrid(newGrid);
     resetVisualizationState();
   };
@@ -159,7 +177,7 @@ export default function PathfindingVisualizer() {
       ) {
         const newGrid = [...grid].map((row) => [...row]);
         newGrid[endNode[0]][endNode[1]] = "";
-        newGrid[row][col] == NODE_END;
+        newGrid[row][col] = NODE_END;
         setEndNode([row, col]);
         setGrid(newGrid);
       }
@@ -169,10 +187,12 @@ export default function PathfindingVisualizer() {
       const newGrid = [...grid].map((row) => [...row]);
       newGrid[row][col] = NODE_WALL;
       setGrid(newGrid);
+      return;
     } else if (isErasing && grid[row][col] === NODE_WALL) {
       const newGrid = [...grid].map((row) => [...row]);
       newGrid[row][col] = "";
       setGrid(newGrid);
+      return;
     }
   };
 
@@ -209,7 +229,7 @@ export default function PathfindingVisualizer() {
         return "bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg";
       default:
         return showWeights && weights[row][col] > 1
-          ? `bg-gradient-to-br from-purple-100 to-purple-200 shadow-sm`
+          ? `bg-primary-light`
           : "bg-white border border-gray-200 hover:bg-gray-50";
     }
   };
@@ -332,13 +352,26 @@ export default function PathfindingVisualizer() {
                   {speed}%
                 </div>
               </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={showWeights}
+                  onCheckedChange={setShowWeights}
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
+                ></Switch>
+                <Label className="font-medium text-sm">
+                  Show Weights
+                </Label>
+              </div>
               <Button
                 className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200"
                 onClick={clearWalls}
               >
                 Clear Walls
               </Button>
-              <Button className="w-full bg-green-50 hover:bg-green-100 border border-green-300 text-green-700">
+              <Button
+                className="w-full bg-green-50 hover:bg-green-100 border border-green-300 text-green-700"
+                onClick={initialzeGrid}
+              >
                 Reset Grid
               </Button>
             </div>
@@ -366,11 +399,24 @@ export default function PathfindingVisualizer() {
                   cell,
                   rowIndex,
                   colIndex
-                )} border border-black-100`}
+                )} text-center border border-black-100 ${
+                  rowIndex == 0 || rowIndex == grid.length - 1
+                    ? "rounded-t-sm"
+                    : ""
+                } ${
+                  colIndex == 0 || colIndex == grid[0].length - 1
+                    ? "rounded-b-sm"
+                    : ""
+                }`}
                 onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
                 onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
                 onMouseUp={handleMouseUp}
-              ></div>
+              >
+                {showWeights &&
+                  weights[rowIndex][colIndex] > 1 &&
+                  grid[rowIndex][colIndex] === "" &&
+                  weights[rowIndex][colIndex]}
+              </div>
             ))
           )}
         </div>

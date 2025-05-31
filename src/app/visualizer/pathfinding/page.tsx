@@ -120,20 +120,24 @@ export default function PathfindingVisualizer() {
   useEffect(() => {
     initialzeGrid();
   }, [gridSize]);
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   const clearWalls = () => {
     const newGrid = [...grid].map((row) => [...row]);
     const newWeights = [...weights].map((row) => [...row]);
-    const rows = newGrid.length;
-    const cols = newGrid[0].length;
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (newGrid[i][j] === "wall") {
+
+    // Only update cells that are walls
+    newGrid.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        if (cell === NODE_WALL) {
           newGrid[i][j] = "";
           newWeights[i][j] = Math.floor(Math.random() * 9 + 2);
         }
-      }
-    }
+      });
+    });
+
     setWeights(newWeights);
     setGrid(newGrid);
     resetVisualizationState();
@@ -222,7 +226,16 @@ export default function PathfindingVisualizer() {
     }
   };
 
-  const stepForward = () => {};
+  const stepForward = () => {
+    if (currentStep + 1 >= totalSteps) return;
+
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    animateVisualization(currentStep + 1, visualizationStepsRef.current);
+  };
+
   // Get node color based on its state
   const getNodeColor = (nodeType: string, row: number, col: number) => {
     switch (nodeType) {
@@ -247,6 +260,7 @@ export default function PathfindingVisualizer() {
 
   const startVisualization = () => {
     clearPath();
+
     setIsVisualizing(true);
     let steps: PathfindingStep[] = [];
 
@@ -281,51 +295,27 @@ export default function PathfindingVisualizer() {
 
     const step = steps[stepIdx];
     setCurrentStep(stepIdx);
-    const [row, col] = step.position;
-    const newGrid = [...grid].map((row) => [...row]);
 
-    // First, preserve all visited nodes from previous steps
-    for (let i = 0; i < stepIdx; i++) {
-      const prevStep = steps[i];
-      if (prevStep.type === "visit") {
-        const [prevRow, prevCol] = prevStep.position;
-        if (
-          newGrid[prevRow][prevCol] !== NODE_START &&
-          newGrid[prevRow][prevCol] !== NODE_END
-        ) {
-          newGrid[prevRow][prevCol] = NODE_VISITED;
-        }
+    setGrid((prevGrid) => {
+      const newGrid = prevGrid.map((r) => [...r]);
+      const [r, c] = step.position;
+
+      if (
+        step.type === "visit" &&
+        newGrid[r][c] !== NODE_START &&
+        newGrid[r][c] !== NODE_END
+      ) {
+        newGrid[r][c] = NODE_VISITED;
+      } else if (
+        step.type === "path" &&
+        newGrid[r][c] !== NODE_START &&
+        newGrid[r][c] !== NODE_END
+      ) {
+        newGrid[r][c] = NODE_PATH;
       }
-    }
 
-    // Then, preserve all path nodes from previous steps
-    for (let i = 0; i < stepIdx; i++) {
-      const prevStep = steps[i];
-      if (prevStep.type === "path") {
-        const [prevRow, prevCol] = prevStep.position;
-        if (
-          newGrid[prevRow][prevCol] !== NODE_START &&
-          newGrid[prevRow][prevCol] !== NODE_END
-        ) {
-          newGrid[prevRow][prevCol] = NODE_PATH;
-        }
-      }
-    }
-
-    // Finally, apply the current step
-
-    if (step.type === "visit") {
-      if (newGrid[row][col] !== NODE_START && newGrid[row][col] !== NODE_END) {
-        newGrid[row][col] = NODE_VISITED;
-      }
-    }
-    if (step.type === "path") {
-      if (newGrid[row][col] !== NODE_START && newGrid[row][col] !== NODE_END) {
-        newGrid[row][col] = NODE_PATH;
-      }
-    }
-
-    setGrid(newGrid);
+      return newGrid;
+    });
 
     const delay = Math.max(5, 300 - speed * 3);
     if (!isPausedRef.current) {
@@ -339,23 +329,26 @@ export default function PathfindingVisualizer() {
   };
 
   const clearPath = () => {
-    const newGrid = [...grid].map((row) => [...row]);
+    setGrid((prevGrid) => {
+      const newGrid = prevGrid.map((r) => [...r]);
+      const rows = newGrid.length;
+      const cols = newGrid[0].length;
 
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[0].length; j++) {
-        if (
-          newGrid[i][j] === NODE_PATH ||
-          newGrid[i][j] === NODE_VISITED ||
-          newGrid[i][j] === NODE_CURRENT
-        ) {
-          newGrid[i][j] = "";
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          if (
+            newGrid[i][j] === NODE_PATH ||
+            newGrid[i][j] === NODE_VISITED ||
+            newGrid[i][j] === NODE_CURRENT
+          ) {
+            newGrid[i][j] = "";
+          }
         }
       }
-    }
-
-    newGrid[startNode[0]][startNode[1]] = NODE_START;
-    newGrid[endNode[0]][endNode[1]] = NODE_END;
-    setGrid(newGrid);
+      newGrid[startNode[0]][startNode[1]] = NODE_START;
+      newGrid[endNode[0]][endNode[1]] = NODE_END;
+      return newGrid;
+    });
     resetVisualizationState();
   };
   return (

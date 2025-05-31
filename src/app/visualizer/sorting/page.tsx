@@ -40,6 +40,7 @@ export default function SortingVisualizer() {
   const [comparingIndices, setComparingIndices] = useState<number[]>([]);
   const [swappingIndices, setSwappingIndices] = useState<number[]>([]);
   const [sortedIndices, setSortedIndices] = useState<number[]>([]);
+  
 
   const sortingStepsRef = useRef<SortStep[]>([]);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -128,7 +129,7 @@ export default function SortingVisualizer() {
       await setIsPaused(false);
       animateSort(currentStep + 1, sortingStepsRef.current);
     } else {
-      setIsPaused(true);
+      await setIsPaused(true);
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
@@ -182,7 +183,7 @@ export default function SortingVisualizer() {
           <SelectTrigger className="h-10 w-40 bg-ui-background border-ui-border">
             <SelectValue placeholder="Select algorithm" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem
               className="cursor-pointer hover:bg-primary-light"
               value="bubble"

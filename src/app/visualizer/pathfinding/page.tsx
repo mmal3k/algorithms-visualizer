@@ -19,15 +19,20 @@ import {
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { PathfindingStep } from "@/types/pathfinding";
 
+import { aStar, bfs, dfs, dijkstra } from "@/algorithms/pathfinding";
 import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-const NODE_START = "start";
-const NODE_END = "end";
-const NODE_WALL = "wall";
-const NODE_VISITED = "visited";
-const NODE_PATH = "path";
-const NODE_CURRENT = "current";
+
+import {
+  NODE_CURRENT,
+  NODE_END,
+  NODE_PATH,
+  NODE_START,
+  NODE_VISITED,
+  NODE_WALL,
+} from "@/constants/nodes";
 
 export default function PathfindingVisualizer() {
   const [grid, setGrid] = useState<string[][]>([]);
@@ -36,7 +41,6 @@ export default function PathfindingVisualizer() {
     25,
     Math.floor(25 * 1.6),
   ]);
-  const [gridCols, setGridCols] = useState<number>(40);
   const [speed, setSpeed] = useState<number>(10);
   const [startNode, setStartNode] = useState<[number, number]>([2, 2]);
   const [endNode, setEndNode] = useState<[number, number]>([22, 22]);
@@ -44,15 +48,17 @@ export default function PathfindingVisualizer() {
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [totalSteps, setTotalSteps] = useState<number>(0);
-  const [showWeights, setShowWeights] = useState(true);
+  const [showWeights, setShowWeights] = useState(false);
   const [weights, setWeights] = useState<number[][]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
+  const [allowDiagonal, setAllowDiagonal] = useState(false);
 
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const visualizationStepsRef = useRef<any[]>([]);
+  const visualizationStepsRef = useRef<PathfindingStep[]>([]);
   const isMouseDownRef = useRef(false);
   const dragNodeRef = useRef<string | null>(null);
+  const isPausedRef = useRef(isPaused);
 
   const initialzeGrid = () => {
     const newGrid: string[][] = Array(gridSize[0])
@@ -104,6 +110,7 @@ export default function PathfindingVisualizer() {
     setCurrentStep(0);
     setTotalSteps(0);
     setIsPaused(false);
+    setIsVisualizing(false);
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
     }
@@ -203,12 +210,16 @@ export default function PathfindingVisualizer() {
     setIsErasing(false);
   };
 
-  const startAnimation = () => {
-    setIsVisualizing(true);
-  };
-
-  const togglePause = () => {
-    setIsPaused((prev) => !prev);
+  const togglePause = async () => {
+    if (isPaused) {
+      await setIsPaused(false);
+      animateVisualization(currentStep + 1, visualizationStepsRef.current);
+    } else {
+      await setIsPaused(true);
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    }
   };
 
   const stepForward = () => {};
@@ -234,10 +245,123 @@ export default function PathfindingVisualizer() {
     }
   };
 
+  const startVisualization = () => {
+    clearPath();
+    setIsVisualizing(true);
+    let steps: PathfindingStep[] = [];
+
+    switch (algorithm) {
+      case "dijkstra":
+        steps = dijkstra(grid, startNode, endNode, weights, allowDiagonal);
+        break;
+      case "aStar":
+        steps = aStar(grid, startNode, endNode, weights, allowDiagonal);
+        break;
+      case "dfs":
+        steps = dfs(grid, startNode, endNode, allowDiagonal);
+        break;
+      case "bfs":
+        steps = bfs(grid, startNode, endNode, allowDiagonal);
+        break;
+      default:
+        steps = dijkstra(grid, startNode, endNode, weights, allowDiagonal);
+        break;
+    }
+
+    visualizationStepsRef.current = steps;
+    setTotalSteps(steps.length);
+    animateVisualization(0, steps);
+  };
+
+  const animateVisualization = (stepIdx: number, steps: PathfindingStep[]) => {
+    if (stepIdx >= steps.length) {
+      setIsVisualizing(false);
+      return;
+    }
+
+    const step = steps[stepIdx];
+    setCurrentStep(stepIdx);
+    const [row, col] = step.position;
+    const newGrid = [...grid].map((row) => [...row]);
+
+    // First, preserve all visited nodes from previous steps
+    for (let i = 0; i < stepIdx; i++) {
+      const prevStep = steps[i];
+      if (prevStep.type === "visit") {
+        const [prevRow, prevCol] = prevStep.position;
+        if (
+          newGrid[prevRow][prevCol] !== NODE_START &&
+          newGrid[prevRow][prevCol] !== NODE_END
+        ) {
+          newGrid[prevRow][prevCol] = NODE_VISITED;
+        }
+      }
+    }
+
+    // Then, preserve all path nodes from previous steps
+    for (let i = 0; i < stepIdx; i++) {
+      const prevStep = steps[i];
+      if (prevStep.type === "path") {
+        const [prevRow, prevCol] = prevStep.position;
+        if (
+          newGrid[prevRow][prevCol] !== NODE_START &&
+          newGrid[prevRow][prevCol] !== NODE_END
+        ) {
+          newGrid[prevRow][prevCol] = NODE_PATH;
+        }
+      }
+    }
+
+    // Finally, apply the current step
+
+    if (step.type === "visit") {
+      if (newGrid[row][col] !== NODE_START && newGrid[row][col] !== NODE_END) {
+        newGrid[row][col] = NODE_VISITED;
+      }
+    }
+    if (step.type === "path") {
+      if (newGrid[row][col] !== NODE_START && newGrid[row][col] !== NODE_END) {
+        newGrid[row][col] = NODE_PATH;
+      }
+    }
+
+    setGrid(newGrid);
+
+    const delay = Math.max(5, 300 - speed * 3);
+    if (!isPausedRef.current) {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+      animationTimeoutRef.current = setTimeout(() => {
+        animateVisualization(stepIdx + 1, steps);
+      }, delay);
+    }
+  };
+
+  const clearPath = () => {
+    const newGrid = [...grid].map((row) => [...row]);
+
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        if (
+          newGrid[i][j] === NODE_PATH ||
+          newGrid[i][j] === NODE_VISITED ||
+          newGrid[i][j] === NODE_CURRENT
+        ) {
+          newGrid[i][j] = "";
+        }
+      }
+    }
+
+    newGrid[startNode[0]][startNode[1]] = NODE_START;
+    newGrid[endNode[0]][endNode[1]] = NODE_END;
+    setGrid(newGrid);
+    resetVisualizationState();
+  };
   return (
     <div>
       <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-5 px-10 bg-ui-background/50">
-        <Button className="h-10 w-40">
+        <Button className="h-10 w-40" onClick={clearPath}>
           <RotateCcw className="w-4 h-4 mr-2" />
           Clear path
         </Button>
@@ -245,7 +369,7 @@ export default function PathfindingVisualizer() {
           <SelectTrigger className="h-10 w-44 bg-ui-background border-ui-border">
             <SelectValue placeholder={"Select algorithm"} />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem
               className="cursor-pointer hover:bg-primary-light"
               value="dijkstra"
@@ -254,7 +378,7 @@ export default function PathfindingVisualizer() {
             </SelectItem>
             <SelectItem
               className="cursor-pointer hover:bg-primary-light"
-              value="a*"
+              value="aStar"
             >
               A* algorithm
             </SelectItem>
@@ -299,7 +423,7 @@ export default function PathfindingVisualizer() {
             )}
           </>
         ) : (
-          <Button className="h-10" onClick={startAnimation}>
+          <Button className="h-10" onClick={startVisualization}>
             <Play className="h-4 w-4 mr-2" />
             Start
           </Button>
@@ -358,10 +482,17 @@ export default function PathfindingVisualizer() {
                   onCheckedChange={setShowWeights}
                   className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
                 ></Switch>
-                <Label className="font-medium text-sm">
-                  Show Weights
-                </Label>
+                <Label className="font-medium text-sm">Show Weights</Label>
               </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={allowDiagonal}
+                  onCheckedChange={setAllowDiagonal}
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
+                ></Switch>
+                <Label className="font-medium text-sm">Allow diagnol</Label>
+              </div>
+
               <Button
                 className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200"
                 onClick={clearWalls}
@@ -374,6 +505,23 @@ export default function PathfindingVisualizer() {
               >
                 Reset Grid
               </Button>
+
+              {isVisualizing && (
+                <div>
+                  <label className="text-sm font-medium mb-2 block text-blue-700">
+                    Progress
+                  </label>
+                  <div className="text-sm text-blue-600">
+                    Step {currentStep} of {totalSteps}
+                  </div>
+                  <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
             </div>
           </SheetContent>
         </Sheet>
@@ -399,7 +547,7 @@ export default function PathfindingVisualizer() {
                   cell,
                   rowIndex,
                   colIndex
-                )} text-center border border-black-100 ${
+                )} flex justify-center items-center text-sm border border-black-100 ${
                   rowIndex == 0 || rowIndex == grid.length - 1
                     ? "rounded-t-sm"
                     : ""

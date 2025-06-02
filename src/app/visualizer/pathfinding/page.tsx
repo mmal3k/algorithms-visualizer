@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,20 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { PathfindingStep } from "@/types/pathfinding";
 
 import { aStar, bfs, dfs, dijkstra } from "@/algorithms/pathfinding";
-import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
+import {
+  HelpCircle,
+  Pause,
+  Play,
+  RotateCcw,
+  Settings,
+  StepForward,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -34,7 +30,23 @@ import {
   NODE_WALL,
 } from "@/constants/nodes";
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 export default function PathfindingVisualizer() {
+  const pathname = usePathname();
   const [grid, setGrid] = useState<string[][]>([]);
   const [algorithm, setAlgorithm] = useState<string>("dijkstra");
   const [gridSize, setGridSize] = useState<[number, number]>([
@@ -353,175 +365,226 @@ export default function PathfindingVisualizer() {
   };
   return (
     <div>
-      <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-5 px-10 bg-ui-background/50">
-        <Button className="h-10 w-40" onClick={clearPath}>
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Clear path
-        </Button>
-        <Select value={algorithm} onValueChange={setAlgorithm}>
-          <SelectTrigger className="h-10 w-44 bg-ui-background border-ui-border">
-            <SelectValue placeholder={"Select algorithm"} />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="dijkstra"
-            >
-              Dijkstra algorithm
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="aStar"
-            >
-              A* algorithm
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="dfs"
-            >
-              Depth first Search
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="bfs"
-            >
-              Breadth first search
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        {isVisualizing ? (
-          <>
-            <Button
-              variant={"outline"}
-              size="sm"
-              onClick={togglePause}
-              className="bg-button-secondary-bg text-button-secondary-text hover:bg-button-secondary-hover h-10 border-ui-border"
-            >
-              {isPaused ? (
-                <Play className="h-4 w-4" />
-              ) : (
-                <Pause className="h-4 w-4" />
-              )}
-            </Button>
-            {isPaused && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={stepForward}
-                className="bg-button-success-bg text-button-success-text hover:bg-button-success-hover h-10 border-ui-border"
-              >
-                <StepForward className="h-4 w-4" />
-              </Button>
-            )}
-          </>
-        ) : (
-          <Button className="h-10" onClick={startVisualization}>
-            <Play className="h-4 w-4 mr-2" />
-            Start
+      <div className="flex flex-wrap items-center gap-4 py-2 shadow-md backdrop-blur w-full px-4 sm:px-10 bg-ui-background/50">
+        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+          <Button className="h-10 w-full sm:w-40" onClick={clearPath}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Clear path
           </Button>
-        )}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant={"outline"}
-              size={"sm"}
-              className="border-ui-border text-ui-foreground hover:bg-ui-accent ml-auto h-10"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="bg-gradient-to-b from-ui-background to-ui-muted">
-            <SheetHeader>
-              <SheetTitle className="text-ui-foreground">Settings</SheetTitle>
-              <SheetDescription>Customize the visualization</SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 space-y-6">
-              <div>
-                <label className="font-medium text-sm mb-2 block">
-                  Grid size
-                </label>
-                <Slider
-                  value={[gridSize[0]]}
-                  min={10}
-                  max={40}
-                  step={1}
-                  onValueChange={(value) =>
-                    setGridSize([value[0], Math.floor(value[0] * 1.6)])
-                  }
-                />
-                <div className="text-sm text-primary text-center font-medium mt-1 block">
-                  {gridSize[0]} x {gridSize[1]}
-                </div>
-              </div>
-              <div>
-                <label className="font-medium text-sm mb-2 block">
-                  Animation speed
-                </label>
-                <Slider
-                  value={[speed]}
-                  min={1}
-                  max={100}
-                  step={1}
-                  onValueChange={(value) => setSpeed(value[0])}
-                />
-                <div className="text-sm text-primary text-center mt-1 font-medium block">
-                  {speed}%
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={showWeights}
-                  onCheckedChange={setShowWeights}
-                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
-                ></Switch>
-                <Label className="font-medium text-sm">Show Weights</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={allowDiagonal}
-                  onCheckedChange={setAllowDiagonal}
-                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
-                ></Switch>
-                <Label className="font-medium text-sm">Allow diagnol</Label>
-              </div>
-
-              <Button
-                className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200"
-                onClick={clearWalls}
+          <Select value={algorithm} onValueChange={setAlgorithm}>
+            <SelectTrigger className="h-10 w-full sm:w-44 bg-ui-background border-ui-border">
+              <SelectValue placeholder={"Select algorithm"} />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="dijkstra"
               >
-                Clear Walls
-              </Button>
-              <Button
-                className="w-full bg-green-50 hover:bg-green-100 border border-green-300 text-green-700"
-                onClick={initialzeGrid}
+                Dijkstra algorithm
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="aStar"
               >
-                Reset Grid
-              </Button>
+                A* algorithm
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="dfs"
+              >
+                Depth first Search
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="bfs"
+              >
+                Breadth first search
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-              {isVisualizing && (
-                <div>
-                  <label className="text-sm font-medium mb-2 block text-blue-700">
-                    Progress
-                  </label>
-                  <div className="text-sm text-blue-600">
-                    Step {currentStep} of {totalSteps}
-                  </div>
-                  <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
+          {isVisualizing ? (
+            <>
+              <Button
+                variant={"outline"}
+                size="sm"
+                onClick={togglePause}
+                className="bg-button-secondary-bg text-button-secondary-text hover:bg-button-secondary-hover h-10 border-ui-border"
+              >
+                {isPaused ? (
+                  <Play className="h-4 w-4" />
+                ) : (
+                  <Pause className="h-4 w-4" />
+                )}
+              </Button>
+              {isPaused && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={stepForward}
+                  className="bg-button-success-bg text-button-success-text hover:bg-button-success-hover h-10 border-ui-border"
+                >
+                  <StepForward className="h-4 w-4" />
+                </Button>
               )}
-            </div>
-          </SheetContent>
-        </Sheet>
+            </>
+          ) : (
+            <Button className="h-10" onClick={startVisualization}>
+              <Play className="h-4 w-4 mr-2" />
+              Start
+            </Button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 ml-auto">
+          <div className="relative mr-4 sm:mr-10">
+            <label className="absolute -top-4 left-1/2 -translate-x-1/2 text-primary text-sm text-center mb-2 whitespace-nowrap">
+              Speed {speed}%
+            </label>
+            <Slider
+              value={[speed]}
+              min={1}
+              max={100}
+              step={1}
+              onValueChange={(value) => setSpeed(value[0])}
+              className="w-24 sm:w-32 top-2"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mr-4 sm:mr-10 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-10"
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Learn</span>
+          </Button>
+          <div className="flex items-center mr-4 sm:mr-10">
+            <Link
+              href="/visualizer/sorting"
+              className={`p-2 transition-colors text-sm ${
+                pathname === "/visualizer/sorting"
+                  ? "bg-primary hover:bg-primary-hover text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              Sorting
+            </Link>
+            <Link
+              href="/visualizer/pathfinding"
+              className={`p-2 transition-colors text-sm ${
+                pathname === "/visualizer/pathfinding"
+                  ? "bg-primary hover:bg-primary-hover text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              Pathfinding
+            </Link>
+          </div>
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                className="border-ui-border text-ui-foreground hover:bg-ui-accent h-10"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="bg-gradient-to-b from-ui-background to-ui-muted">
+              <SheetHeader>
+                <SheetTitle className="text-ui-foreground">Settings</SheetTitle>
+                <SheetDescription>Customize the visualization</SheetDescription>
+              </SheetHeader>
+              <div className="mt-6 space-y-6">
+                <div>
+                  <label className="font-medium text-sm mb-2 block">
+                    Grid size
+                  </label>
+                  <Slider
+                    value={[gridSize[0]]}
+                    min={10}
+                    max={40}
+                    step={1}
+                    onValueChange={(value) =>
+                      setGridSize([value[0], Math.floor(value[0] * 1.6)])
+                    }
+                  />
+                  <div className="text-sm text-primary text-center font-medium mt-1 block">
+                    {gridSize[0]} x {gridSize[1]}
+                  </div>
+                </div>
+                <div>
+                  <label className="font-medium text-sm mb-2 block">
+                    Animation speed
+                  </label>
+                  <Slider
+                    value={[speed]}
+                    min={1}
+                    max={100}
+                    step={1}
+                    onValueChange={(value) => setSpeed(value[0])}
+                  />
+                  <div className="text-sm text-primary text-center mt-1 font-medium block">
+                    {speed}%
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={showWeights}
+                    onCheckedChange={setShowWeights}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
+                  ></Switch>
+                  <Label className="font-medium text-sm">Show Weights</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={allowDiagonal}
+                    onCheckedChange={setAllowDiagonal}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-400"
+                  ></Switch>
+                  <Label className="font-medium text-sm">Allow diagnol</Label>
+                </div>
+
+                <Button
+                  className="w-full bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200"
+                  onClick={clearWalls}
+                >
+                  Clear Walls
+                </Button>
+                <Button
+                  className="w-full bg-green-50 hover:bg-green-100 border border-green-300 text-green-700"
+                  onClick={initialzeGrid}
+                >
+                  Reset Grid
+                </Button>
+
+                {isVisualizing && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-blue-700">
+                      Progress
+                    </label>
+                    <div className="text-sm text-blue-600">
+                      Step {currentStep} of {totalSteps}
+                    </div>
+                    <div className="w-full bg-blue-100 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(currentStep / totalSteps) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
-      {/* Main Visualzation area  */}
-      <div className="flex-1 flex items-center justify-center ">
+      {/* Main Visualization area */}
+      <div className="flex-1 flex items-center justify-center py-4 sm:py-10 px-4 sm:px-0">
         <div
           className={`grid rounded-lg shadow-lg border border-blue-200`}
           style={{
@@ -529,6 +592,8 @@ export default function PathfindingVisualizer() {
             gridTemplateRows: `repeat(${gridSize[0]}, minmax(0, 1fr))`,
             width: `calc(${gridSize[1]} / ${gridSize[0]} * min(80vh, 80vw))`,
             height: `min(80vh, 80vw)`,
+            maxWidth: "100%",
+            maxHeight: "100%",
           }}
           onMouseLeave={handleMouseUp}
         >

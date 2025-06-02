@@ -23,10 +23,19 @@ import {
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import { SortStep } from "@/types/sorting";
-import { Pause, Play, RotateCcw, Settings, StepForward } from "lucide-react";
+import {
+  HelpCircle,
+  Pause,
+  Play,
+  RotateCcw,
+  Settings,
+  StepForward,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function SortingVisualizer() {
   const [array, setArray] = useState<number[]>([]);
@@ -44,6 +53,8 @@ export default function SortingVisualizer() {
   const sortingStepsRef = useRef<SortStep[]>([]);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isPausedRef = useRef(isPaused);
+
+  const pathname = usePathname();
 
   const generateRandomArray = () => {
     const newArray = [];
@@ -144,9 +155,7 @@ export default function SortingVisualizer() {
 
     animateSort(currentStep + 1, sortingStepsRef.current);
   };
-  const stepBack = () => {
-    
-  }
+  const stepBack = () => {};
 
   const resetSortingState = () => {
     setIsPaused(false);
@@ -175,161 +184,211 @@ export default function SortingVisualizer() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 ">
-      <div className="flex items-center gap-4 py-2 shadow-md backdrop-blur w-full mb-10 px-10 bg-ui-background/50">
-        <Button
-          className="flex items-center h-10 bg-button-primary-bg text-button-primary-text px-4 rounded-md hover:bg-button-primary-hover"
-          onClick={() => generateRandomArray()}
-          disabled={isSorting && !isPaused}
-        >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Generate New Array
-        </Button>
-        <Select
-          value={sortingAlgorithm}
-          onValueChange={setSortingAlgorithm}
-          disabled={isSorting && !isPaused}
-        >
-          <SelectTrigger className="h-10 w-40 bg-ui-background border-ui-border">
-            <SelectValue placeholder="Select algorithm" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="bubble"
-            >
-              Bubble Sort
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="merge"
-            >
-              Merge Sort
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="quick"
-            >
-              Quick Sort
-            </SelectItem>
-            <SelectItem
-              className="cursor-pointer hover:bg-primary-light"
-              value="heap"
-            >
-              Heap Sort
-            </SelectItem>
-          </SelectContent>
-        </Select>
+    <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-wrap items-center gap-4 py-2 shadow-md backdrop-blur w-full px-4 sm:px-10 bg-ui-background/50">
+        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+          <Button
+            className="flex items-center h-10 w-full sm:w-auto bg-button-primary-bg text-button-primary-text px-4 rounded-md hover:bg-button-primary-hover"
+            onClick={() => generateRandomArray()}
+            disabled={isSorting && !isPaused}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Generate New Array
+          </Button>
+          <Select
+            value={sortingAlgorithm}
+            onValueChange={setSortingAlgorithm}
+            disabled={isSorting && !isPaused}
+          >
+            <SelectTrigger className="h-10 w-full sm:w-40 bg-ui-background border-ui-border">
+              <SelectValue placeholder="Select algorithm" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="bubble"
+              >
+                Bubble Sort
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="merge"
+              >
+                Merge Sort
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="quick"
+              >
+                Quick Sort
+              </SelectItem>
+              <SelectItem
+                className="cursor-pointer hover:bg-primary-light"
+                value="heap"
+              >
+                Heap Sort
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-        {isSorting ? (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={togglePause}
-              className="bg-button-secondary-bg text-button-secondary-text hover:bg-button-secondary-hover h-10 border-ui-border"
-            >
-              {isPaused ? (
-                <Play className="h-4 w-4" />
-              ) : (
-                <Pause className="h-4 w-4" />
-              )}
-            </Button>
-            {isPaused && (
+          {isSorting ? (
+            <>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={stepForward}
-                className="bg-button-success-bg text-button-success-text hover:bg-button-success-hover h-10 border-ui-border"
+                onClick={togglePause}
+                className="bg-button-secondary-bg text-button-secondary-text hover:bg-button-secondary-hover h-10 border-ui-border"
               >
-                <StepForward className="h-4 w-4" />
+                {isPaused ? (
+                  <Play className="h-4 w-4" />
+                ) : (
+                  <Pause className="h-4 w-4" />
+                )}
               </Button>
-            )}
-          </>
-        ) : (
-          <Button
-            onClick={startSorting}
-            className="bg-button-primary-bg text-button-primary-text hover:bg-button-primary-hover h-10"
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Start
-          </Button>
-        )}
-
-        <Sheet>
-          <SheetTrigger asChild>
+              {isPaused && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={stepForward}
+                  className="bg-button-success-bg text-button-success-text hover:bg-button-success-hover h-10 border-ui-border"
+                >
+                  <StepForward className="h-4 w-4" />
+                </Button>
+              )}
+            </>
+          ) : (
             <Button
-              variant="outline"
-              size="sm"
-              className="border-ui-border text-ui-foreground hover:bg-ui-accent ml-auto h-10"
+              onClick={startSorting}
+              className="bg-button-primary-bg text-button-primary-text hover:bg-button-primary-hover h-10"
             >
-              <Settings className="h-4 w-4" />
+              <Play className="h-4 w-4 mr-2" />
+              Start
             </Button>
-          </SheetTrigger>
-          <SheetContent className="bg-gradient-to-b from-ui-background to-ui-muted">
-            <SheetHeader>
-              <SheetTitle className="text-ui-foreground">Settings</SheetTitle>
-              <SheetDescription>Customize the visualization</SheetDescription>
-            </SheetHeader>
-            <div className="space-y-6 mt-6">
-              <div>
-                <label className="text-sm font-medium mb-2 block text-ui-foreground">
-                  Array Size
-                </label>
-                <Slider
-                  value={[array.length]}
-                  min={10}
-                  max={100}
-                  step={1}
-                  onValueChange={(value) => {
-                    setArraySize(value[0]);
-                    generateRandomArray();
-                  }}
-                  disabled={isSorting && !isPaused}
-                />
-                <div className="text-center text-sm text-primary mt-1">
-                  {array.length} elements
-                </div>
-              </div>
+          )}
+        </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block text-ui-foreground">
-                  Animation Speed
-                </label>
-                <Slider
-                  value={[speed]}
-                  min={1}
-                  max={100}
-                  step={1}
-                  onValueChange={(value) => setSpeed(value[0])}
-                />
-                <div className="text-center text-sm text-primary mt-1">
-                  {speed}% speed
-                </div>
-              </div>
+        <div className="flex flex-wrap items-center gap-4 ml-auto">
+          <div className="relative mr-4 sm:mr-10">
+            <label className="absolute -top-4 left-1/2 -translate-x-1/2 text-primary text-sm text-center mb-2 whitespace-nowrap">
+              Speed {speed}%
+            </label>
+            <Slider
+              value={[speed]}
+              min={1}
+              max={100}
+              step={1}
+              onValueChange={(value) => setSpeed(value[0])}
+              className="w-24 sm:w-32 top-2"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mr-4 sm:mr-10 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-10"
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">Learn</span>
+          </Button>
+          <div className="flex items-center mr-4 sm:mr-10">
+            <Link
+              href="/visualizer/sorting"
+              className={`p-2 transition-colors text-sm ${
+                pathname === "/visualizer/sorting"
+                  ? "bg-primary hover:bg-primary-hover text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              Sorting
+            </Link>
+            <Link
+              href="/visualizer/pathfinding"
+              className={`p-2 transition-colors text-sm ${
+                pathname === "/visualizer/pathfinding"
+                  ? "bg-primary hover:bg-primary-hover text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              Pathfinding
+            </Link>
+          </div>
 
-              {isSorting && (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-ui-border text-ui-foreground hover:bg-ui-accent h-10"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="bg-gradient-to-b from-ui-background to-ui-muted">
+              <SheetHeader>
+                <SheetTitle className="text-ui-foreground">Settings</SheetTitle>
+                <SheetDescription>Customize the visualization</SheetDescription>
+              </SheetHeader>
+              <div className="space-y-6 mt-6">
                 <div>
                   <label className="text-sm font-medium mb-2 block text-ui-foreground">
-                    Progress
+                    Array Size
                   </label>
-                  <div className="text-sm text-primary">
-                    Step {currentStep} of {totalSteps}
-                  </div>
-                  <div className="w-full bg-ui-muted rounded-full h-2 mt-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                    ></div>
+                  <Slider
+                    value={[array.length]}
+                    min={10}
+                    max={100}
+                    step={1}
+                    onValueChange={(value) => {
+                      setArraySize(value[0]);
+                      generateRandomArray();
+                    }}
+                    disabled={isSorting && !isPaused}
+                  />
+                  <div className="text-center text-sm text-primary mt-1">
+                    {array.length} elements
                   </div>
                 </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block text-ui-foreground">
+                    Animation Speed
+                  </label>
+                  <Slider
+                    value={[speed]}
+                    min={1}
+                    max={100}
+                    step={1}
+                    onValueChange={(value) => setSpeed(value[0])}
+                  />
+                  <div className="text-center text-sm text-primary mt-1">
+                    {speed}% speed
+                  </div>
+                </div>
+
+                {isSorting && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block text-ui-foreground">
+                      Progress
+                    </label>
+                    <div className="text-sm text-primary">
+                      Step {currentStep} of {totalSteps}
+                    </div>
+                    <div className="w-full bg-ui-muted rounded-full h-2 mt-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(currentStep / totalSteps) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
-      <div className="flex items-end gap-1 h-[400px] w-full max-w-6xl mt-20">
+      <div className="flex items-end gap-1 h-[400px] w-full max-w-6xl mt-10 px-4 sm:px-0">
         {array.map((value, index) => (
           <div
             key={index}

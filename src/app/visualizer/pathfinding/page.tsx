@@ -174,6 +174,11 @@ export default function PathfindingVisualizer() {
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent, row: number, col: number) => {
+    e.preventDefault(); // Prevent scrolling
+    handleMouseDown(row, col);
+  };
+
   const handleMouseEnter = (row: number, col: number) => {
     if (!isMouseDownRef.current) return;
 
@@ -219,11 +224,21 @@ export default function PathfindingVisualizer() {
     }
   };
 
+  const handleTouchMove = (e: React.TouchEvent, row: number, col: number) => {
+    e.preventDefault(); // Prevent scrolling
+    handleMouseEnter(row, col);
+  };
+
   const handleMouseUp = () => {
     dragNodeRef.current = null;
     isMouseDownRef.current = false;
     setIsDrawing(false);
     setIsErasing(false);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling
+    handleMouseUp();
   };
 
   const togglePause = async () => {
@@ -596,6 +611,7 @@ export default function PathfindingVisualizer() {
             maxHeight: "100%",
           }}
           onMouseLeave={handleMouseUp}
+          onTouchEnd={handleTouchEnd}
         >
           {grid.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
@@ -617,6 +633,9 @@ export default function PathfindingVisualizer() {
                 onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
                 onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
                 onMouseUp={handleMouseUp}
+                onTouchStart={(e) => handleTouchStart(e, rowIndex, colIndex)}
+                onTouchMove={(e) => handleTouchMove(e, rowIndex, colIndex)}
+                onTouchEnd={handleTouchEnd}
               >
                 {showWeights &&
                   weights[rowIndex][colIndex] > 1 &&

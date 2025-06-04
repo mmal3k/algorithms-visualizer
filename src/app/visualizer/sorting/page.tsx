@@ -37,6 +37,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import AlgorithmExplanation from "@/components/learn/AlgorithmExplanation";
+
 export default function SortingVisualizer() {
   const [array, setArray] = useState<number[]>([]);
   const [speed, setSpeed] = useState<number>(10);
@@ -285,9 +287,12 @@ export default function SortingVisualizer() {
             variant="outline"
             size="sm"
             className="mr-4 sm:mr-10 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-10"
+            asChild
           >
-            <HelpCircle className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Learn</span>
+            <Link href={"#learn"}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Learn</span>
+            </Link>
           </Button>
           <div className="flex items-center mr-4 sm:mr-10">
             <Link
@@ -388,7 +393,7 @@ export default function SortingVisualizer() {
         </div>
       </div>
 
-      <div className="flex items-end gap-1 h-[400px] w-full max-w-6xl mt-10 px-4 sm:px-0">
+      <div className="flex items-end gap-1 h-[400px] w-full max-w-6xl mt-20 px-4 sm:px-0">
         {array.map((value, index) => (
           <div
             key={index}
@@ -405,6 +410,8 @@ export default function SortingVisualizer() {
           </div>
         ))}
       </div>
+
+      <AlgorithmExplanation algorithm={sortingAlgorithm} />
     </div>
   );
 }

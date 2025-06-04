@@ -12,6 +12,7 @@ import { PathfindingStep } from "@/types/pathfinding";
 
 import { aStar, bfs, dfs, dijkstra } from "@/algorithms/pathfinding";
 import {
+  ArrowLeft,
   HelpCircle,
   Pause,
   Play,
@@ -368,6 +369,12 @@ export default function PathfindingVisualizer() {
     <div>
       <div className="flex flex-wrap items-center gap-4 py-2 shadow-md backdrop-blur w-full px-4 sm:px-10 bg-ui-background/50">
         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+          <Link
+            className="bg-primary hover:bg-primary-hover h-10 w-10 flex items-center justify-center rounded-sm"
+            href={"/"}
+          >
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </Link>
           <Button className="h-10 w-full sm:w-40" onClick={clearPath}>
             <RotateCcw className="w-4 h-4 mr-2" />
             Clear path

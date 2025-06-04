@@ -24,6 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { SortStep } from "@/types/sorting";
 import {
+  ArrowLeft,
   HelpCircle,
   Pause,
   Play,
@@ -189,6 +190,9 @@ export default function SortingVisualizer() {
     <div className="relative flex flex-col items-center">
       <div className="flex flex-wrap items-center gap-4 py-2 shadow-md backdrop-blur w-full px-4 sm:px-10 bg-ui-background/50 mb-4">
         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+          <Link className="bg-primary hover:bg-primary-hover h-10 w-10 flex items-center justify-center rounded-sm" href={"/"}>
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </Link>
           <Button
             className="flex items-center h-10 w-full sm:w-auto bg-button-primary-bg text-button-primary-text px-4 rounded-md hover:bg-button-primary-hover"
             onClick={() => generateRandomArray()}

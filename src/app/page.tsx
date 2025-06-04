@@ -16,7 +16,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("pathfinding");
   return (
     <div className="min-h-screen bg-gradient-to-br">
-      <div className="container py-12 px-4 md:px-6">
+      <div className="py-12 px-4 md:px-6">
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-primary mb-4">
             Algorithm Visualizer
@@ -28,7 +28,7 @@ export default function Home() {
         </header>
 
         <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-          <Card className="overflow-hidden border-2 border-blue-100 shadow-lg hover:shadow-xl transition-shadow">
+          <Card className="flex flex-col justify-between overflow-hidden border-2 border-blue-100 shadow-lg hover:shadow-xl transition-shadow">
             <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <BarChart2 className="h-24 w-24 text-white" />
             </div>
@@ -71,7 +71,7 @@ export default function Home() {
             </CardFooter>
           </Card>
 
-          <Card className="overflow-hidden border-2 border-blue-100 shadow-lg hover:shadow-xl transition-shadow">
+          <Card className="flex flex-col justify-between overflow-hidden border-2 border-blue-100 shadow-lg hover:shadow-xl transition-shadow">
             <div className="h-48 bg-gradient-to-r from-blue-400 to-blue-600  flex items-center justify-center">
               <GitGraph className="h-24 w-24 text-white" />
             </div>
@@ -105,10 +105,7 @@ export default function Home() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button
-                asChild
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
+              <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
                 <Link href="/visualizer/pathfinding">
                   Explore Pathfinding Algorithms
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -146,8 +143,8 @@ export default function Home() {
                 Interactive Learning
               </h3>
               <p className="text-gray-600">
-                Adjust parameters and watch how
-                algorithms adapt to different situations.
+                Adjust parameters and watch how algorithms adapt to different
+                situations.
               </p>
             </div>
           </div>

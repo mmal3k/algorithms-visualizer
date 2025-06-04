@@ -186,7 +186,7 @@ export default function SortingVisualizer() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="relative flex flex-col items-center gap-8">
       <div className="flex flex-wrap items-center gap-4 py-2 shadow-md backdrop-blur w-full px-4 sm:px-10 bg-ui-background/50">
         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
           <Button
@@ -393,6 +393,20 @@ export default function SortingVisualizer() {
         </div>
       </div>
 
+      <div className="text-sm font-medium absolute flex gap-2 md:gap-0 md:flex-col top-52 md:top-20 left-2 w-30 h-20">
+        <div className="flex items-center gap-1 md:gap-4">
+          <div className="w-3 h-3 rounded-sm bg-gradient-to-t from-sort-sorted to-sort-sorted/80"></div>
+          Sorted
+        </div>
+        <div className="flex items-center gap-1 md:gap-4">
+          <div className="w-3 h-3 rounded-sm bg-gradient-to-t from-sort-swapping to-sort-swapping/80 shadow-lg"></div>
+          Swapping
+        </div>
+        <div className="flex items-center gap-1 md:gap-4">
+          <div className="w-3 h-3 rounded-sm bg-gradient-to-t from-sort-comparing to-sort-comparing/80 shadow-lg"></div>
+          Comparing
+        </div>
+      </div>
       <div className="flex items-end gap-1 h-[400px] w-full max-w-6xl mt-20 px-4 sm:px-0">
         {array.map((value, index) => (
           <div

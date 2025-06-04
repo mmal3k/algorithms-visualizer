@@ -39,7 +39,10 @@ export default function AlgorithmExplanation({
       : (getPathfindingInfo(algorithm) as PathfindingAlgorithmInfo);
 
   return (
-    <div id="learn" className="mt-20 w-full px-4">
+    <div
+      id="learn"
+      className={`${type === "sorting" ? "mt-10" : "mt-4"} w-full px-4`}
+    >
       <h2 className="text-2xl font-bold mb-4">Algorithm Details</h2>
       <div className="flex flex-col md:flex-row gap-4">
         {/* algorithms explanation */}
@@ -118,7 +121,7 @@ export default function AlgorithmExplanation({
           </ul>
         </div>
         {/* algorithm code */}
-        <div className="md :w-1/2">
+        <div className="md:w-1/2">
           <CodeDisplay algorithm={algorithm} type={type} />
         </div>
       </div>

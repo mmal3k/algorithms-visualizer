@@ -588,7 +588,29 @@ export default function PathfindingVisualizer() {
       </div>
 
       {/* Main Visualization area */}
-      <div className="flex-1 flex items-center justify-center py-4 sm:py-10 px-4 sm:px-0">
+      <div className="relative flex-1 flex items-center justify-center pt-10 px-4 sm:px-0">
+        <div className="text-sm font-medium absolute flex md:flex-col -top-4 md:top-10 left-2 w-20 h-20 gap-2 md:gap-0">
+          <div className="flex items-center gap-1 md:gap-4">
+            <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-green-400 to-green-600 shadow-lg border-2 border-green-300"></div>
+            Start
+          </div>
+          <div className="flex items-center gap-1 md:gap-4">
+            <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-red-400 to-red-600 shadow-lg border-2 border-red-300"></div>
+            End
+          </div>
+          <div className="flex items-center gap-1 md:gap-4">
+            <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-gray-700 to-gray-900 shadow-md"></div>
+            Wall
+          </div>
+          <div className="flex items-center gap-1 md:gap-4">
+            <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-blue-300 to-blue-500 shadow-sm"></div>
+            Visited
+          </div>
+          <div className="flex items-center gap-1 md:gap-4">
+            <div className="w-3 h-3 rounded-sm bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg"></div>
+            Path
+          </div>
+        </div>
         <div
           className={`grid rounded-lg shadow-lg border border-blue-200`}
           style={{

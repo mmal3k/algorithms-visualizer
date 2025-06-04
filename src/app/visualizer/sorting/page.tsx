@@ -411,7 +411,7 @@ export default function SortingVisualizer() {
         ))}
       </div>
 
-      <AlgorithmExplanation algorithm={sortingAlgorithm} />
+      <AlgorithmExplanation algorithm={sortingAlgorithm} type="sorting" />
     </div>
   );
 }

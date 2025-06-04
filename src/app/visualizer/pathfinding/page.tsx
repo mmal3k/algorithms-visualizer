@@ -39,13 +39,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import AlgorithmExplanation from "@/components/learn/AlgorithmExplanation";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-
 
 export default function PathfindingVisualizer() {
   const pathname = usePathname();
@@ -456,9 +455,12 @@ export default function PathfindingVisualizer() {
             variant="outline"
             size="sm"
             className="mr-4 sm:mr-10 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-10"
+            asChild
           >
-            <HelpCircle className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Learn</span>
+            <Link href={"#learn"}>
+              <HelpCircle className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Learn</span>
+            </Link>
           </Button>
           <div className="flex items-center mr-4 sm:mr-10">
             <Link
@@ -629,6 +631,7 @@ export default function PathfindingVisualizer() {
           )}
         </div>
       </div>
+      <AlgorithmExplanation algorithm={algorithm} type="pathfinding" />
     </div>
   );
 }

@@ -1,26 +1,52 @@
 interface CodeDisplayProps {
   algorithm: string;
+  type: "sorting" | "pathfinding";
+}
+interface SortingAlgorithmInfo {
+  name: string;
+  description: string;
+  timeComplexity: string;
+  spaceComplexity: string;
+  stable: boolean;
+  howItWorks: string[];
+  bestUseCases: string[];
+  inPlace: string;
 }
 
-type Language = "javascript" | "python" | "java" | "cpp" | "c";
+interface PathfindingAlgorithmInfo {
+  name: string;
+  description: string;
+  timeComplexity: string;
+  spaceComplexity: string;
+  guarantees: string;
+  howItWorks: string[];
+  bestUseCases: string[];
+  limitations: string[];
+}
 
-import { getAlgorithmInfo } from "@/data/sorting-algorithms";
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PathfindingCode } from "@/data/Code/PathfindingCode";
 import { SortingCode } from "@/data/Code/SortingCode";
-import { TabsContent } from "@radix-ui/react-tabs";
+import { getAlgorithmInfo as getPathfindingInfo } from "@/data/pathfinding-algorithms";
+import { getAlgorithmInfo as getSortingInfo } from "@/data/sorting-algorithms";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-export default function CodeDisplay({ algorithm }: CodeDisplayProps) {
-  const code = SortingCode(algorithm);
-  console.log(code["python"]);
+export default function CodeDisplay({ algorithm, type }: CodeDisplayProps) {
+  const code =
+    type === "sorting" ? SortingCode(algorithm) : PathfindingCode(algorithm);
+
+  const algorithmInfo =
+    type === "sorting"
+      ? (getSortingInfo(algorithm) as SortingAlgorithmInfo)
+      : (getPathfindingInfo(algorithm) as PathfindingAlgorithmInfo);
+
   return (
     <div className="w-full">
-      <Tabs defaultValue="javascript">
+      <Tabs defaultValue="javascript" className="w-full">
         <div className="flex justify-around items-center mb-4">
           <h3 className="text-xl font-bold text-primary">
-            {getAlgorithmInfo(algorithm).name} Implementation
+            {algorithmInfo.name} Implementation
           </h3>
           <TabsList className="bg-primary-light/50 rounded-none">
             <TabsTrigger
@@ -55,26 +81,87 @@ export default function CodeDisplay({ algorithm }: CodeDisplayProps) {
             </TabsTrigger>
           </TabsList>
         </div>
-        <div className="relative">
-          {["javascript", "python", "java", "cpp", "c"].map((l) => (
-            <TabsContent key={l} value={l} className="">
-              <SyntaxHighlighter
-                language={l}
-                style={vscDarkPlus}
-                showLineNumbers={true}
-                wrapLines={true}
-                customStyle={{
-                  margin: 0,
-                  borderRadius: "0.375rem",
-                  fontSize: "14px",
-                  lineHeight: "1.5",
-                }}
-              >
-                {code[l as Language]}
-              </SyntaxHighlighter>
-            </TabsContent>
-          ))}
-        </div>
+
+        <TabsContent value="javascript">
+          <SyntaxHighlighter
+            language="javascript"
+            style={vscDarkPlus}
+            showLineNumbers={true}
+            wrapLines={true}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "14px",
+              lineHeight: "1.5",
+            }}
+          >
+            {code.javascript}
+          </SyntaxHighlighter>
+        </TabsContent>
+        <TabsContent value="python">
+          <SyntaxHighlighter
+            language="python"
+            style={vscDarkPlus}
+            showLineNumbers={true}
+            wrapLines={true}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "14px",
+              lineHeight: "1.5",
+            }}
+          >
+            {code.python}
+          </SyntaxHighlighter>
+        </TabsContent>
+        <TabsContent value="java">
+          <SyntaxHighlighter
+            language="java"
+            style={vscDarkPlus}
+            showLineNumbers={true}
+            wrapLines={true}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "14px",
+              lineHeight: "1.5",
+            }}
+          >
+            {code.java}
+          </SyntaxHighlighter>
+        </TabsContent>
+        <TabsContent value="cpp">
+          <SyntaxHighlighter
+            language="cpp"
+            style={vscDarkPlus}
+            showLineNumbers={true}
+            wrapLines={true}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "14px",
+              lineHeight: "1.5",
+            }}
+          >
+            {code.cpp}
+          </SyntaxHighlighter>
+        </TabsContent>
+        <TabsContent value="c">
+          <SyntaxHighlighter
+            language="c"
+            style={vscDarkPlus}
+            showLineNumbers={true}
+            wrapLines={true}
+            customStyle={{
+              margin: 0,
+              borderRadius: "0.375rem",
+              fontSize: "14px",
+              lineHeight: "1.5",
+            }}
+          >
+            {code.c}
+          </SyntaxHighlighter>
+        </TabsContent>
       </Tabs>
     </div>
   );

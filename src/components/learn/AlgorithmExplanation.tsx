@@ -41,9 +41,9 @@ export default function AlgorithmExplanation({
   return (
     <div id="learn" className="mt-20 w-full px-4">
       <h2 className="text-2xl font-bold mb-4">Algorithm Details</h2>
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         {/* algorithms explanation */}
-        <div className="w-1/2 flex flex-col gap-4">
+        <div className="md:w-1/2 flex flex-col gap-4">
           <h3 className="text-xl text-primary font-bold ">
             {algorithmInfo.name} Explanation
           </h3>
@@ -118,7 +118,7 @@ export default function AlgorithmExplanation({
           </ul>
         </div>
         {/* algorithm code */}
-        <div className="w-1/2">
+        <div className="md :w-1/2">
           <CodeDisplay algorithm={algorithm} type={type} />
         </div>
       </div>

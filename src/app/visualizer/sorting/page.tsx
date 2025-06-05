@@ -52,6 +52,7 @@ export default function SortingVisualizer() {
   const [comparingIndices, setComparingIndices] = useState<number[]>([]);
   const [swappingIndices, setSwappingIndices] = useState<number[]>([]);
   const [sortedIndices, setSortedIndices] = useState<number[]>([]);
+  const speedRef = useRef(speed)
 
   const sortingStepsRef = useRef<SortStep[]>([]);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -75,6 +76,10 @@ export default function SortingVisualizer() {
   useEffect(() => {
     isPausedRef.current = isPaused;
   }, [isPaused]);
+
+  useEffect(()=>{
+    speedRef.current = speed
+  },[speed])
 
   const startSorting = () => {
     resetSortingState();
@@ -126,7 +131,7 @@ export default function SortingVisualizer() {
       setSortedIndices((prev) => [...prev, ...step.indices]);
     }
 
-    const delay = Math.max(5, 300 - speed * 3);
+    const delay = Math.max(5, 300 - speedRef.current * 3);
     if (!isPausedRef.current) {
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
@@ -158,7 +163,6 @@ export default function SortingVisualizer() {
 
     animateSort(currentStep + 1, sortingStepsRef.current);
   };
-  const stepBack = () => {};
 
   const resetSortingState = () => {
     setIsPaused(false);

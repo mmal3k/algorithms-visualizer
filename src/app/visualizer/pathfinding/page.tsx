@@ -70,6 +70,7 @@ export default function PathfindingVisualizer() {
   const isMouseDownRef = useRef(false);
   const dragNodeRef = useRef<string | null>(null);
   const isPausedRef = useRef(isPaused);
+  const speedRef = useRef(speed);
 
   const initialzeGrid = () => {
     const newGrid: string[][] = Array(gridSize[0])
@@ -131,9 +132,14 @@ export default function PathfindingVisualizer() {
   useEffect(() => {
     initialzeGrid();
   }, [gridSize]);
+
   useEffect(() => {
     isPausedRef.current = isPaused;
   }, [isPaused]);
+
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
 
   const clearWalls = () => {
     const newGrid = [...grid].map((row) => [...row]);
@@ -328,7 +334,8 @@ export default function PathfindingVisualizer() {
       return newGrid;
     });
 
-    const delay = Math.max(5, 300 - speed * 3);
+    const delay = Math.max(5, 300 - speedRef.current * 3);
+
     if (!isPausedRef.current) {
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);

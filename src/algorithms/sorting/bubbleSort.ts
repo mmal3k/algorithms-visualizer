@@ -12,6 +12,7 @@ export const bubbleSort = (arr: number[]) => {
   });
 
   for (let i = 0; i < n; i++) {
+    let swapped = false;
     for (let j = 0; j < n - i - 1; j++) {
       steps.push({
         type: "compare",
@@ -20,12 +21,21 @@ export const bubbleSort = (arr: number[]) => {
       });
       if (arrCopy[j] > arrCopy[j + 1]) {
         [arrCopy[j], arrCopy[j + 1]] = [arrCopy[j + 1], arrCopy[j]];
+        swapped = true;
         steps.push({
           type: "swap",
           indices: [j, j + 1],
           array: [...arrCopy],
         });
       }
+    }
+    if (!swapped) {
+      steps.push({
+        type: "sorted",
+        indices: Array.from({ length: arrCopy.length }, (_, i) => i),
+        array: [...arrCopy],
+      });
+      break;
     }
     steps.push({
       type: "sorted",
